@@ -264,6 +264,15 @@ describe("PATCH /users/:username", () => {
     expect(resp.statusCode).toEqual(401);
   });
 
+  test('unauth for not isAdmin', async () => {
+    const resp = await request(app)
+        .patch(`/users/u1`)
+        .send({
+          firstName: "New",
+        }).set('authorization', `Bearer ${u2Token}`);
+    expect(resp.statusCode).toBe(401);
+  });
+
   test("not found if no such user", async function () {
     const resp = await request(app)
         .patch(`/users/nope`)
@@ -315,11 +324,25 @@ describe("DELETE /users/:username", function () {
     expect(resp.body).toEqual({ deleted: "u1" });
   });
 
+  test('test works for admin', async () => {
+    const resp = await request(app)
+    .delete(`/users/u2`)
+    .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.body).toEqual({ deleted: "u2" });
+  })
+
   test("unauth for anon", async function () {
     const resp = await request(app)
         .delete(`/users/u1`);
     expect(resp.statusCode).toEqual(401);
   });
+
+  test('unauth for not isAdmin', async () => {
+    const resp = await request(app)
+    .delete(`/users/u1`)
+    .set("authorization", `Bearer ${u2Token}`);
+    expect(resp.statusCode).toBe(401);
+  })
 
   test("not found if user missing", async function () {
     const resp = await request(app)

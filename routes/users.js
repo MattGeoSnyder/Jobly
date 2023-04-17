@@ -96,10 +96,6 @@ router.patch("/:username", [ensureLoggedIn, canEdit], async function (req, res, 
       throw new BadRequestError(errs);
     }
 
-    if ((req.params.username !== res.locals.user.username) || res.locals.isAdmin) {
-      throw new UnauthorizedError();
-    }
-
     const user = await User.update(req.params.username, req.body);
     return res.json({ user });
   } catch (err) {
