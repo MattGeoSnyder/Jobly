@@ -181,7 +181,7 @@ describe("GET /users/:username", function () {
     });
   });
 
-  test('works for admin', async () => {
+  test('/other_user works for admin', async () => {
     const resp = await request(app)
         .get(`/users/u2`)
         .set("authorization", `Bearer ${u1Token}`);
@@ -199,6 +199,13 @@ describe("GET /users/:username", function () {
     const resp = await request(app)
         .get(`/users/u1`);
     expect(resp.statusCode).toEqual(401);
+  });
+
+  test("/other_user doesn't work for non-admin", async () => {
+    const resp = await request(app)
+        .get(`/users/u1`)
+        .set("authorization", `Bearer ${u2Token}`);
+    expect(resp.statusCode).toBe(401);
   });
 
   test("not found if user not found", async function () {
@@ -229,6 +236,24 @@ describe("PATCH /users/:username", () => {
       },
     });
   });
+
+  test('works for admin', async () => {
+    const resp = await request(app)
+        .patch(`/users/u2`)
+        .send({
+          firstName: "New",
+        })
+        .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.body).toEqual({
+      user: {
+        username: "u2",
+        firstName: "New",
+        lastName: "U2L",
+        email: "user2@user.com",
+        isAdmin: false,
+      }
+    });
+  })
 
   test("unauth for anon", async function () {
     const resp = await request(app)
