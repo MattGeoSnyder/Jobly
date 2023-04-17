@@ -9,9 +9,8 @@ class Job {
         const result = await db.query(`INSERT INTO jobs
                                         (title, salary, equity, company_handle)
                                         VALUES ($1, $2, $3, $4)
-                                        RETURNING id, title, salary, equity, company_handle AS companyHandle;` 
+                                        RETURNING id, title, salary, company_handle AS companyHandle, equity;` 
                                         ,[title, salary, equity, companyHandle]);
-        console.log(result.rows[0]);
         return result.rows[0];
     }
 
@@ -34,13 +33,13 @@ class Job {
                                     FROM jobs
                                     WHERE id = $1;`, [id])
 
-        if (job.rows.length === 0) throw new NotFoundError('Not found');
+        if (job.rows.length === 0) throw new NotFoundError(`No job: ${id}`);
 
         return job.rows[0];
     }
 
     static async update(id, data) {
-        const { setCols, values } = sqlForPartialUpdate(data, {companyHandle: 'company_handle'});
+        const { setCols, values } = sqlForPartialUpdate(data, {});
         const idVarIdx = "$" + (values.length + 1);
 
         const sqlQuery = `UPDATE jobs
@@ -54,7 +53,7 @@ class Job {
         
         console.log(sqlQuery);
         
-        const result = await db.query(sqlQuery, [...values, idVarIdx]);
+        const result = await db.query(sqlQuery, [...values, id]);
         const job = result.rows[0];
 
         if (!job) throw new NotFoundError(`No job: ${id}`);
