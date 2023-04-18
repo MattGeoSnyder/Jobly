@@ -14,14 +14,31 @@ class Job {
         return result.rows[0];
     }
 
-    static async findAll() {
+    static async findAll(args={}) {
+        //get arguments optionally
+        const {title, minSalary, hasEquity} = args;
+
+        //query all jobs first
         const jobs = await db.query(`SELECT title,
                                     salary,
                                     equity,
                                     company_handle AS companyHandle
                                 FROM jobs;`);
-    
-        return jobs.rows;
+        
+        let results = jobs.rows;
+
+        //filter depending if arg is given
+        if (title) {
+            results = results.filter(r => r.title === title);
+        }
+        if (minSalary) {
+            results = results.filter(r => r.salary >= minSalary)
+        }
+        if (hasEquity) {
+            results = results.filter(r => r.equity);
+        }
+
+        return results;
     }
 
     static async get(id) {

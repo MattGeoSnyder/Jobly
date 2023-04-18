@@ -72,6 +72,60 @@ describe("findAll", () => {
                 companyhandle: "c3"
             }
         ]);
+    });
+
+    test('works filter title', async () => {
+        let jobs = await Job.findAll({title: 'j1'});
+        expect(jobs).toEqual([
+            {
+                title: 'j1',
+                salary: 1,
+                equity: '0.1',
+                companyhandle: "c1"
+            }
+        ]);
+    });
+
+    test('works filter minSalary', async () => {
+        let jobs = await Job.findAll({minSalary: 2});  
+        expect(jobs).toEqual([
+            {
+                title: 'j2',
+                salary: 2,
+                equity: '0.2',
+                companyhandle: "c2"
+            },
+            {
+                title: 'j3',
+                salary: 3,
+                equity: '0.3',
+                companyhandle: "c3"
+            }
+        ]);
+    });
+
+    test('works filter equity', async () => {
+        let jobs = await Job.findAll({equity: true}); 
+        expect(jobs).toEqual([
+            {
+                title: 'j1',
+                salary: 1,
+                equity: '0.1',
+                companyhandle: "c1"
+            },
+            {
+                title: 'j2',
+                salary: 2,
+                equity: '0.2',
+                companyhandle: "c2"
+            },
+            {
+                title: 'j3',
+                salary: 3,
+                equity: '0.3',
+                companyhandle: "c3"
+            }
+        ]);
     })
 });
 
@@ -205,5 +259,5 @@ describe('remove', () => {
         } catch (error) {
             expect(error instanceof NotFoundError).toBeTruthy();
         }
-    })
-})
+    });
+});
