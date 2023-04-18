@@ -51,7 +51,6 @@ class Job {
                                 equity,
                                 company_handle AS companyHandle`;
         
-        console.log(sqlQuery);
         
         const result = await db.query(sqlQuery, [...values, id]);
         const job = result.rows[0];

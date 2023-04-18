@@ -13,6 +13,7 @@ const jobUpdateSchema = require('../schemas/jobUpdate.json');
 const router = new express.Router();
 
 router.post('/', [ensureLoggedIn, isAdmin], async (req, res, next) => {
+    debugger;
     try {
         const validator = jsonschema.validate(req.body, jobNewSchema);
         if (!validator.valid) {
@@ -21,7 +22,7 @@ router.post('/', [ensureLoggedIn, isAdmin], async (req, res, next) => {
         }
 
         const job = await Job.create(req.body);
-        return res.status.json({ job });
+        return res.status(201).json({ job });
     } catch (error) {
         return next(error);
     }
@@ -36,7 +37,7 @@ router.get('/', async (req, res, next) => {
     }
 });
 
-router.get("/:id", async () => {
+router.get("/:id", async (req, res, next) => {
     try {
         const job = await Job.get(req.params.id);
         return res.json({ job });
@@ -45,11 +46,11 @@ router.get("/:id", async () => {
     }
 });
 
-router.patch('/:id', [ensureLoggedIn, isAdmin], async () => {
+router.patch('/:id', [ensureLoggedIn, isAdmin], async (req, res, next) => {
     try {
         const validator = jsonschema.validate(req.body, jobUpdateSchema);
         if (!validator.valid) {
-            const errs = validator.errors.map(e => s.stack);
+            const errs = validator.errors.map(e => e.stack);
             throw new BadRequestError(errs);
         }
 
@@ -60,10 +61,10 @@ router.patch('/:id', [ensureLoggedIn, isAdmin], async () => {
     }
 });
 
-router.delete('/:id', [ensureLoggedIn, isAdmin], async () => {
+router.delete('/:id', [ensureLoggedIn, isAdmin], async (req, res, next) => {
     try {
         await Job.remove(req.params.id);
-        return res.json({ delted: req.params.id });
+        return res.json({ deleted: req.params.id });
     } catch (error) {
         return next(error);
     }
