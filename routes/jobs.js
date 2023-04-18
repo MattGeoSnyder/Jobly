@@ -30,7 +30,7 @@ router.post('/', [ensureLoggedIn, isAdmin], async (req, res, next) => {
 
 router.get('/', async (req, res, next) => {
     try {
-        const jobs = await Job.findAll();
+        const jobs = await Job.findAll(req.body);
         return res.json({ jobs })
     } catch (error) {
         return next(error);

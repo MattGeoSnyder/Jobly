@@ -91,6 +91,60 @@ describe('GET /jobs', () => {
         ]})
     });
 
+    test('works for filtering title', async () => {
+        let res = await request(app).get('/jobs').send({title: 'j1'});
+        expect(res.body).toEqual({ jobs: [
+            {
+                title: 'j1',
+                salary: 1,
+                equity: '0.1',
+                companyhandle: 'c1'
+            }
+        ]});
+    });
+
+    test('works for filtering minSalary', async () => {
+        let res = await request(app).get('/jobs').send({minSalary: 2});
+        expect(res.body).toEqual({ jobs: [
+            {
+                title: 'j2',
+                salary: 2,
+                equity: '0.2',
+                companyhandle: 'c2'
+            },
+            {
+                title: 'j3',
+                salary: 3,
+                equity: '0.3',
+                companyhandle: 'c3'
+            }
+        ]});
+    });
+
+    test('works for filtering equity', async () => {
+        let res = await request(app).get('/jobs').send({equity: true});
+        expect(res.body).toEqual({ jobs: [
+            {
+                title: 'j1',
+                salary: 1,
+                equity: '0.1',
+                companyhandle: 'c1'
+            },
+            {
+                title: 'j2',
+                salary: 2,
+                equity: '0.2',
+                companyhandle: 'c2'
+            },
+            {
+                title: 'j3',
+                salary: 3,
+                equity: '0.3',
+                companyhandle: 'c3'
+            }
+        ]});
+    })
+
     test('works for login', async () => {
         let res = await request(app).get('/jobs')
             .set('authorization', `Bearer ${u2Token}`);
