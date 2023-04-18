@@ -100,8 +100,8 @@ class Company {
                   j.title,
                   j.salary,
                   j.equity
-           FROM jobs j 
-           JOIN companies c
+           FROM companies c
+           JOIN jobs j
            ON j.company_handle = c.handle
            WHERE c.handle = $1`,
         [handle]);
@@ -111,11 +111,11 @@ class Company {
 
     if (!company) throw new NotFoundError(`No company: ${handle}`);
 
-    let jobs = results.map(c => { 
+    let jobs = results.map(j => { 
       return {
-      title: c.title, 
-      salary: c.salary,
-      equity: c.equity }
+      title: j.title, 
+      salary: j.salary,
+      equity: j.equity }
     });
 
     return {
@@ -160,6 +160,8 @@ class Company {
                                 logo_url AS "logoUrl"`;
     const result = await db.query(querySql, [...values, handle]);
     const company = result.rows[0];
+
+    console.log(company);
 
     if (!company) throw new NotFoundError(`No company: ${handle}`);
 

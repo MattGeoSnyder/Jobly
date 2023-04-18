@@ -88,18 +88,27 @@ describe("findAll", function () {
   test('works: filter name', async () => {
     let companies = await Company.findAll({name: "C3"});
     let c3 = await Company.get('c3');
+    delete c3.jobs
     expect(companies).toEqual([c3]);
   });
   test('works: filter minEmployees', async () => {
     let companies = await Company.findAll({ minEmployees: 2});
     let c2 = await Company.get('c2');
     let c3 = await Company.get('c3');
+
+    delete c2.jobs;
+    delete c3.jobs;
+
     expect(companies).toEqual([c2, c3]);
   });
   test('works: filter maxEmployees', async () => {
     let companies = await Company.findAll({maxEmployees: 2});
     let c1 = await Company.get('c1');
     let c2 = await Company.get('c2');
+
+    delete c1.jobs;
+    delete c2.jobs;
+
     expect(companies).toEqual([c1, c2]);
   });
   test('works: filter multiple', async () => {
@@ -125,6 +134,11 @@ describe("get", function () {
       name: "C1",
       description: "Desc1",
       numEmployees: 1,
+      jobs: [{
+        title: 'j1',
+        salary: 1,
+        equity: '0.1'
+      }],
       logoUrl: "http://c1.img",
     });
   });
@@ -151,6 +165,7 @@ describe("update", function () {
 
   test("works", async function () {
     let company = await Company.update("c1", updateData);
+
     expect(company).toEqual({
       handle: "c1",
       ...updateData,
@@ -165,8 +180,7 @@ describe("update", function () {
       name: "New",
       description: "New Description",
       num_employees: 10,
-      logo_url: "http://new.img",
-      jobs: [{title: "j1", salary: 1, equity: '0.1'}]
+      logo_url: "http://new.img"
     }]);
   });
 

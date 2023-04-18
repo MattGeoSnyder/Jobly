@@ -9,9 +9,12 @@ const {
 
 
 const { SECRET_KEY } = require("../config");
+const { commonAfterAll } = require("../models/_testCommon");
 const testJwt = jwt.sign({ username: "test", isAdmin: false }, SECRET_KEY);
 const badJwt = jwt.sign({ username: "test", isAdmin: false }, "wrong");
 
+
+afterAll(commonAfterAll);
 
 describe("authenticateJWT", function () {
   test("works: via header", function () {
@@ -78,3 +81,4 @@ describe("ensureLoggedIn", function () {
     ensureLoggedIn(req, res, next);
   });
 });
+

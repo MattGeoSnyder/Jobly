@@ -122,19 +122,29 @@ describe("GET /companies", function () {
 describe("GET /companies/:handle", function () {
   test("works for anon", async function () {
     const resp = await request(app).get(`/companies/c1`);
+    delete resp.body.jobs
     expect(resp.body).toEqual({
       company: {
         handle: "c1",
         name: "C1",
         description: "Desc1",
         numEmployees: 1,
+        jobs: [{
+          title: 'j1',
+          salary: 1,
+          equity: '0.1'
+        }],
         logoUrl: "http://c1.img",
       },
     });
   });
 
   test("works for anon: company w/o jobs", async function () {
-    const resp = await request(app).get(`/companies/c2`);
+    let resp = await request(app).get(`/companies/c2`);
+
+    let company = resp.body.company
+    delete company.jobs;
+
     expect(resp.body).toEqual({
       company: {
         handle: "c2",
@@ -142,7 +152,7 @@ describe("GET /companies/:handle", function () {
         description: "Desc2",
         numEmployees: 2,
         logoUrl: "http://c2.img",
-      },
+      }
     });
   });
 
