@@ -125,21 +125,39 @@ class User {
 
   static async get(username) {
     const userRes = await db.query(
-          `SELECT username,
-                  first_name AS "firstName",
-                  last_name AS "lastName",
-                  email,
-                  is_admin AS "isAdmin"
-           FROM users
-           WHERE username = $1`,
-        [username],
+          `SELECT u.username,
+                  u.first_name AS "firstName",
+                  u.last_name AS "lastName",
+                  u.email,
+                  u.is_admin AS "isAdmin",
+                  a.job_id AS jobId, 
+                  a.username AS appUsername
+          FROM users u
+          LEFT JOIN applications a 
+          ON u.username = a.username
+          WHERE u.username = $1`,
+        [username]
     );
 
     const user = userRes.rows[0];
 
     if (!user) throw new NotFoundError(`No user: ${username}`);
 
-    return user;
+  let jobs
+  if (user.jobid){
+    jobs = userRes.rows.map(r => r.jobid);
+  } else {
+    jobs = [];
+  }
+
+    return {
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      jobs
+    }
   }
 
   /** Update user data with `data`.
@@ -206,14 +224,18 @@ class User {
   }
 
   static async apply(username, job_id) {
-    let user =  await db.query(`SELECT * FROM users WHERE username = $1`, [username]);
-    let job = await db.query(`SELECT * FROM jobs WHERE job_id = $1`, [job_id]);
+    
+    let userRes =  await db.query(`SELECT * FROM users WHERE username = $1;`, [username]);
+    let jobRes = await db.query(`SELECT * FROM jobs WHERE id = $1;`, [job_id]);
+  
+    let user = userRes.rows[0];
+    let job = jobRes.rows[0];
 
     if (!user || !job) {
       throw new NotFoundError('User or job does not exist');
     }
 
-    await db.query(`INSERT INTO applications (username, job_id) VALUES`, [username, job_id]);
+    await db.query(`INSERT INTO applications (username, job_id) VALUES ($1, $2);`, [username, job_id]);
   }
 
 }

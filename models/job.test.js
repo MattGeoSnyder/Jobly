@@ -150,7 +150,6 @@ describe('get', () => {
             await Job.get(0);
             fail();
         } catch (error) {
-            console.log(error);
             expect(error instanceof NotFoundError).toBeTruthy();
         }
     });
@@ -199,8 +198,6 @@ describe('update', () => {
         let j1 = await db.query(`SELECT id FROM jobs WHERE title = 'j1';`);
         let id = j1.rows[0].id;
 
-        console.log(id);
-
         let job = await Job.update(id, updateData);
         expect(job).toEqual({
             id,
@@ -225,7 +222,6 @@ describe('update', () => {
             await Job.update(0, updateData)
             fail();
         } catch (error) {
-            console.log(error);
             expect(error instanceof NotFoundError).toBeTruthy();
         }
     });

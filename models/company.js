@@ -161,8 +161,6 @@ class Company {
     const result = await db.query(querySql, [...values, handle]);
     const company = result.rows[0];
 
-    console.log(company);
-
     if (!company) throw new NotFoundError(`No company: ${handle}`);
 
     return company;

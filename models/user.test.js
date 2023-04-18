@@ -138,6 +138,7 @@ describe("get", function () {
       username: "u1",
       firstName: "U1F",
       lastName: "U1L",
+      jobs: [],
       email: "u1@email.com",
       isAdmin: false,
     });
@@ -228,3 +229,27 @@ describe("remove", function () {
     }
   });
 });
+
+describe("apply", () => {
+  let job;
+  let jobId;
+
+  beforeEach(async () => {
+    job = await db.query(`SELECT * FROM jobs WHERE title = 'j1'`);
+    jobId = job.rows[0].id;
+  });
+
+  afterEach(async () => {
+    await db.query(`DELETE FROM applications`);
+  })
+
+  test('works', async () => {
+
+    await User.apply('u1', jobId);
+    let results = await db.query(`SELECT * FROM applications
+      WHERE username = 'u1' AND job_id = $1`, [jobId]);
+    let application = results.rows[0];
+    expect(application.username).toBe('u1');
+    expect(application.job_id).toBe(jobId);
+  });
+})

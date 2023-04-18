@@ -5,6 +5,8 @@ const request = require("supertest");
 const db = require("../db.js");
 const app = require("../app");
 const User = require("../models/user");
+const Job = require("../models/job");
+
 
 const {
   commonBeforeAll,
@@ -175,6 +177,7 @@ describe("GET /users/:username", function () {
         username: "u1",
         firstName: "U1F",
         lastName: "U1L",
+        jobs: [],
         email: "user1@user.com",
         isAdmin: false,
       },
@@ -190,6 +193,7 @@ describe("GET /users/:username", function () {
         username: "u2",
         firstName: "U2F",
         lastName: "U2L",
+        jobs: [],
         email: "user2@user.com",
         isAdmin: false
       }});
@@ -214,6 +218,27 @@ describe("GET /users/:username", function () {
         .set("authorization", `Bearer ${u1Token}`);
     expect(resp.statusCode).toEqual(404);
   });
+
+  test('works for user who applied to job', async () => {
+    let j1 = await db.query(`SELECT id FROM jobs WHERE title = 'j1'`);
+    let id = j1.rows[0].id;
+
+    await User.apply('u1', id);
+    const res = await request(app)
+      .get('/users/u1')
+      .set("authorization", `Bearer ${u1Token}`);
+      
+    expect(res.body).toEqual({
+      user: {
+        username: "u1",
+        firstName: "U1F",
+        lastName: "U1L",
+        jobs: [id],
+        email: "user1@user.com",
+        isAdmin: false,
+      }
+    });
+  })
 });
 
 /************************************** PATCH /users/:username */
@@ -351,3 +376,57 @@ describe("DELETE /users/:username", function () {
     expect(resp.statusCode).toEqual(404);
   });
 });
+
+/******************************** POST /users/:username/jobs/:id */
+
+describe("Testing POST /:username/jobs/:id", () => {
+  let hotJob;
+
+  beforeEach(async () => {
+    hotJob = await Job.create({ title: 'Professional Foodie', 
+                          salary: '1000000',
+                          equity: 0.2,
+                          companyHandle: 'c1' });
+  });
+
+  afterEach(async () => {
+    await db.query(`DELETE FROM jobs WHERE id = ${hotJob.id}`);
+  });
+
+
+  test("works for non-admin", async () => {
+      const res = await request(app).post(`/users/u2/jobs/${hotJob.id}`)
+      .set('authorization', `Bearer ${u2Token}`);   
+      expect(res.body).toEqual({ applied: `${hotJob.id}` });
+  });
+
+  test('works for admin other user', async () => {
+    const res = await request(app).post(`/users/u2/jobs/${hotJob.id}`)
+      .set('authorization', `Bearer ${u1Token}`);
+    expect(res.body).toEqual({ applied: `${hotJob.id}` });
+  });
+
+  test('fails for no auth', async () => {
+    const res = await request(app).post(`/users/u2/jobs/${hotJob.id}`);  
+    expect(res.statusCode).toBe(401);
+  });
+
+  test('fails for non-admin other user', async () => {
+    const res = await request(app).post(`/users/u1/jobs/${hotJob.id}`)
+      .set('authorization', `Bearer ${u2Token}`);  
+    expect(res.statusCode).toBe(401);
+  });
+
+
+  test('fails if job not found', async () => {
+    const res = await request(app).post(`/users/u2/jobs/0`)
+      .set('authorization', `Bearer ${u2Token}`); 
+    expect(res.statusCode).toBe(404);
+  });
+
+  test('fails if user does not exist', async () => {
+    const res = await request(app).post(`/users/u4/jobs/${hotJob.id}`)
+    .set('authorization', `Bearer ${u1Token}`); 
+    expect(res.statusCode).toBe(404);  
+  });
+})

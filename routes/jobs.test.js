@@ -332,7 +332,6 @@ describe('PATCH /jobs/id', () => {
                 .set(`authorization`, `Bearer ${u1Token}`);
             expect(res.statusCode).toBe(404);
         } catch (error) {
-            console.log(error);
             expect(error instanceof NotFoundError).toBeTruthy();
         }
     });
@@ -358,7 +357,6 @@ describe('PATCH /jobs/id', () => {
                 .set(`authorization`, `Bearer ${u1Token}`);
             expect(res.statusCode).toBe(400);
         } catch (error) {
-            // console.log(error);
             expect(error instanceof BadRequestError).toBeTruthy();
         }
 
@@ -385,7 +383,6 @@ describe('PATCH /jobs/id', () => {
                 .set(`authorization`, `Bearer ${u1Token}`);
             expect(res.statusCode).toBe(400);
         } catch (error) {
-            console.log(error);
             expect(error instanceof BadRequestError).toBeTruthy();
         }
 
