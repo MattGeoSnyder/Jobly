@@ -166,6 +166,7 @@ describe("update", function () {
       description: "New Description",
       num_employees: 10,
       logo_url: "http://new.img",
+      jobs: [{title: "j1", salary: 1, equity: '0.1'}]
     }]);
   });
 
